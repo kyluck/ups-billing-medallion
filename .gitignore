@@ -1,0 +1,42 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# dbt
+target/
+dbt_packages/
+logs/
+*.log
+
+# data files
+data/
+*.xlsx
+*.xls
+*.csv
+*.pdf
+
+# docker volumes / local state
+*.sqlite
+
+
+# IDE
+.idea/
+
+
+# OS
+.DS_Store
+Thumbs.db
+
+# local outputs
+outputs/
+
+
+*.sql.gz
+*.dump

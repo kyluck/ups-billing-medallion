@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: stg_bronze_file_registry
+    columns:
+      - name: file_id
+        tests: [not_null, unique]
+
+  - name: stg_bronze_load_event
+    columns:
+      - name: load_event_id
+        tests: [not_null, unique]
+      - name: file_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_bronze_file_registry')
+                field: file_id
+
+  - name: stg_bronze_invoice_row
+    columns:
+      - name: bronze_row_id
+        tests: [not_null, unique]
+      - name: file_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_bronze_file_registry')
+                field: file_id
+      - name: load_event_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_bronze_load_event')
+                field: load_event_id
+      - name: row_number
+        tests: [not_null]
+
+  - name: stg_bronze_invoice_cells
+    columns:
+      - name: bronze_row_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_bronze_invoice_row')
+                field: bronze_row_id
+      - name: col_index
+        tests: [not_null]
+
+
+
+  - name: stg_ups_invoice_lines
+    columns:
+      - name: bronze_row_id
+        tests: [not_null, unique]
+      - name: file_id
+        tests: [not_null]
+      - name: load_event_id
+        tests: [not_null]
+      - name: row_number
+        tests: [not_null]
+
+
+
+  - name: int_ups_invoice_lines_curated
+    columns:
+      - name: bronze_row_id
+        tests: [not_null, unique]
+      - name: invoice_number
+        tests: [not_null]
+      - name: account_number
+        tests: [not_null]
+      - name: net_amount
+        tests: [not_null]
+      - name: line_type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [ 'shipment_line', 'non_shipment_line' ]
+
+
