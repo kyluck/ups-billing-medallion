@@ -1,11 +1,11 @@
 import os
 import psycopg2
 
-host = os.getenv("PGHOST", "localhost")
-port = int(os.getenv("PGPORT", "5433"))
-dbname = os.getenv("PGDATABASE", "ups_billing")
-user = os.getenv("PGUSER", "ups_user")
-password = os.getenv("PGPASSWORD", "ups_password")
+host = os.getenv("POSTGRES_HOST", "localhost")
+port = int(os.getenv("POSTGRES_PORT", "5433"))
+dbname = os.getenv("POSTGRES_DB", "ups_billing")
+user = os.getenv("POSTGRES_USER", "ups_user")
+password = os.getenv("POSTGRES_PASSWORD", "ups_password")
 
 print("Connecting with:")
 print(" host =", host)
@@ -28,3 +28,4 @@ print("Result:", cur.fetchone())
 cur.close()
 conn.close()
 print("OK")
+

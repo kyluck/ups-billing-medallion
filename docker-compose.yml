@@ -6,11 +6,17 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-ups_billing}
       POSTGRES_USER: ${POSTGRES_USER:-ups_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ups_password}
+
+    # Expose Postgres to your host ONLY if you need to connect from local tools
+    # (psql, PyCharm, DBeaver). Metabase can reach Postgres without this via the
+    # Docker network.
     ports:
       - "${POSTGRES_PORT:-5433}:5432"
+
     volumes:
       - ups_pgdata:/var/lib/postgresql/data
-      - ./sql:/sql
+      - ./sql:/sql:ro
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ups_user} -d ${POSTGRES_DB:-ups_billing}"]
       interval: 5s
@@ -18,14 +24,18 @@ services:
       retries: 20
 
   metabase:
-    image: metabase/metabase:latest
+    # Pin a stable version for reproducibility (avoid :latest surprises)
+    image: metabase/metabase:v0.49.17
     container_name: ups_metabase
     depends_on:
       postgres:
         condition: service_healthy
+
     ports:
       - "${METABASE_PORT:-3000}:3000"
+
     environment:
+      # Metabase application DB (stores Metabase settings/users/dashboards)
       MB_DB_TYPE: postgres
       MB_DB_DBNAME: ${METABASE_DB:-metabase_app}
       MB_DB_PORT: 5432
@@ -33,5 +43,11 @@ services:
       MB_DB_PASS: ${POSTGRES_PASSWORD:-ups_password}
       MB_DB_HOST: postgres
 
+    # Persist Metabase configuration across restarts
+    volumes:
+      - metabase_data:/metabase-data
+
 volumes:
   ups_pgdata:
+  metabase_data:
+
