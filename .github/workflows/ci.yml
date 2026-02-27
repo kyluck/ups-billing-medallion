@@ -65,6 +65,24 @@ jobs:
                 keepalives_idle: 0
           EOF
 
+      - name: Install psql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Bootstrap database schemas/tables (Bronze DDL)
+        env:
+          PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        run: |
+          # Run all SQL files in ./sql (in filename order)
+          for f in $(ls -1 sql/*.sql | sort); do
+            echo "Running $f"
+            psql -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+
+
+
       - name: Install dbt dependencies
         working-directory: dbt/ups_billing_dbt
         run: dbt deps
